@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>生徒を当てるアプリ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 80px);
+      gap: 5px;
+      margin: 20px auto;
+      width: max-content;
+    }
+    .seat {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #aaa;
+      background: #f9f9f9;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .disabled { background: #ccc; color: #666; } /* 無効にした席 */
+    .selected { background: tomato; color: white; }
+    .highlight { background: gold; }
+    .temp { background: lightblue; }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background: steelblue;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: dodgerblue;
+    }
+  </style>
+</head>
+<body>
+  <h1>生徒を当てるアプリ</h1>
+  <button onclick="pickRandom()">当てる</button>
+  <div id="grid" class="grid"></div>
+
+  <script>
+    const rows = 6;
+    const cols = 6;
+    const grid = document.getElementById("grid");
+    let seats = [];
+
+    // 生徒の名前を設定
+    const names = [
+      ["あ","い","う","え","お","か"],
+      ["き","く","け","こ","さ","し"],
+      ["す","せ","そ","た","ち","つ"],
+      ["て","と","は","ひ","ふ","へ"],
+      ["ほ","ま","み","む","め","も"],
+      ["や","ゆ","よ","わ","を","ん"]
+    ];
+
+    // 無効の席
+    const disabledSeats = [
+      [0,0], [5,5]
+    ];
+
+    // 座席を設定する
+    for (let r = 0; r < rows; r++) {
+      seats[r] = [];
+      for (let c = 0; c < cols; c++) {
+        const div = document.createElement("div");
+        div.className = "seat";
+        div.textContent = names[r][c];
+
+        if (disabledSeats.some(([dr,dc]) => dr === r && dc === c)) {
+          div.classList.add("disabled");
+        }
+
+        grid.appendChild(div);
+        seats[r][c] = div;
+      }
+    }
+
+    function pickRandom() {
+      seats.flat().forEach(seat => {
+        if (!seat.classList.contains("disabled")) seat.className = "seat";
+        else seat.className = "seat disabled";
+      });
+
+      let steps = 25;
+      let count = 0;
+
+      const interval = setInterval(() => {
+        seats.flat().forEach(seat => {
+          if (!seat.classList.contains("selected") &&
+              !seat.classList.contains("highlight") &&
+              !seat.classList.contains("disabled")) {
+            seat.className = "seat";
+          }
+        });
+
+        const validSeats = [];
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (!disabledSeats.some(([dr,dc]) => dr === r && dc === c)) {
+              validSeats.push([r,c]);
+            }
+          }
+        }
+
+        const [r,c] = validSeats[Math.floor(Math.random()*validSeats.length)];
+        seats[r][c].classList.add("temp");
+
+        count++;
+        if (count >= steps) {
+          clearInterval(interval);
+          finalPick();
+        }
+      }, 100);
+    }
+
+    function finalPick() {
+      seats.flat().forEach(seat => {
+        if (!seat.classList.contains("disabled")) seat.className = "seat";
+        else seat.className = "seat disabled";
+      });
+
+      const validSeats = [];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (!disabledSeats.some(([dr,dc]) => dr === r && dc === c)) {
+            validSeats.push([r,c]);
+          }
+        }
+      }
+
+      const [r,c] = validSeats[Math.floor(Math.random()*validSeats.length)];
+      seats[r][c].classList.add("selected");
+
+      // 四方八方に端まで表示する
+      const directions = [
+        [1,0], [-1,0], [0,1], [0,-1],
+        [1,1], [1,-1], [-1,1], [-1,-1]
+      ];
+      directions.forEach(([dr,dc]) => {
+        let nr = r + dr, nc = c + dc;
+        while (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+          if (disabledSeats.some(([dr,dc]) => dr === nr && dc === nc)) break; // 無効にした席で止める
+          seats[nr][nc].classList.add("highlight");
+          nr += dr;
+          nc += dc;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+
+
