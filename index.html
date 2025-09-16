@@ -50,24 +50,14 @@
   <div id="grid" class="grid"></div>
 
   <script>
-    const rows = 6;
-    const cols = 6;
+    const rows = 5;  // 5行
+    const cols = 6;  // 6列
     const grid = document.getElementById("grid");
     let seats = [];
 
-    // 生徒の名前を設定
-    const names = [
-      ["あ","い","う","え","お","か"],
-      ["き","く","け","こ","さ","し"],
-      ["す","せ","そ","た","ち","つ"],
-      ["て","と","は","ひ","ふ","へ"],
-      ["ほ","ま","み","む","め","も"],
-      ["や","ゆ","よ","わ","を","ん"]
-    ];
-
-    // 無効の席
+    // 無効の席（右下 = 4行5列目）
     const disabledSeats = [
-      [0,0], [5,5]
+      [4, 5]  // 右下の席
     ];
 
     // 座席を設定する
@@ -76,7 +66,8 @@
       for (let c = 0; c < cols; c++) {
         const div = document.createElement("div");
         div.className = "seat";
-        div.textContent = names[r][c];
+        // 名前は表示しない（空文字）
+        div.textContent = "";
 
         if (disabledSeats.some(([dr,dc]) => dr === r && dc === c)) {
           div.classList.add("disabled");
@@ -161,5 +152,6 @@
   </script>
 </body>
 </html>
+
 
 
